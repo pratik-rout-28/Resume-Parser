@@ -1,0 +1,52 @@
+{
+    "name": "Pratik Rout",
+    "phone": "+91 62908 64603",
+    "email": "routpratik2023@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/pratik-rout-734837344/",
+    "github": "https://github.com/pratik-rout-28",
+    "summary": "Second-year BCA student passionate about web development and AI, with hands-on experience in building full-stack applications. Skilled in HTML, CSS, JavaScript, Node.js, and MongoDB. I thrive in collaborative environments where I can apply my problem-solving and coding skills to real-world challenges.",
+    "skills": [
+        "bootstrap",
+        "c",
+        "css3",
+        "express.js",
+        "html5",
+        "javascript",
+        "mongodb",
+        "node.js",
+        "python",
+        "sql"
+    ],
+    "projects": [
+        {
+            "title": "Wanderlust April 2025 - June 2025",
+            "description": "Developed Wanderlust, a full-stack vacation rental platform inspired by Airbnb, allowing users to list, browse, and book properties. Implemented features like user authentication, listing and review management, and RESTful API integration. Tech Stack: HTML, CSS, JavaScript, Bootstrap, Node.js, Express.js, MongoDB, and Passport.js.",
+            "technologies": [
+                "Bootstrap",
+                "CSS",
+                "Express.js",
+                "HTML",
+                "JavaScript",
+                "MongoDB",
+                "Node.js",
+                "Passport.js"
+            ]
+        },
+        {
+            "title": "Smart Language Translator June 2025 - July 2025",
+            "description": "Created a voice-enabled translator app that supports real-time multilingual translation, speech input, and audio playback. Implemented speech recognition, text-to-speech, and language detection, along with features like theme switching and language toggling for accessibility. Technologies: Python, Streamlit, googletrans, gTTS, speech_recognition.",
+            "technologies": [
+                "Python",
+                "Streamlit",
+                "gTTS",
+                "googletrans"
+            ]
+        }
+    ],
+    "education": [
+        "Techno Main Saltlake Aug 2024 - June 2028",
+        "Bachelor of Computer Applications",
+        "St. Thomas\u2019 Church School April 2014 - May 2024",
+        "Higher Secondary"
+    ]
+}
