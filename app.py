@@ -4,6 +4,7 @@ import base64
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import streamlit.components.v1 as components
 from app.extractor import extract_text_from_pdf
 from app.parser import parse_resume, score_resume
 from app.exporter import export_resume
@@ -40,14 +41,6 @@ st.markdown("""
         font-weight:600;
         margin-right:12px;
     }
-    iframe {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-        width: 100%;
-        height: 600px;
-    }
     @media (max-width: 768px) {
         .main-title {
             font-size: 2rem;
@@ -57,9 +50,6 @@ st.markdown("""
         }
         .block-container {
             padding: 1rem;
-        }
-        iframe {
-            height: 400px;
         }
     }
     </style>
@@ -168,7 +158,6 @@ if uploaded_file:
                     if skill.lower() in kw_list:
                         category_map[cat].append(skill)
 
-            # Remove empty
             category_map = {k: v for k, v in category_map.items() if v}
 
             if category_map:
@@ -192,11 +181,12 @@ if uploaded_file:
             st.subheader("📄 Resume Preview")
             with open(pdf_path, "rb") as pdf_file:
                 base64_pdf = base64.b64encode(pdf_file.read()).decode("utf-8")
-                pdf_display = (
-                    f'<iframe src="data:application/pdf;base64,{base64_pdf}" '
-                    f'type="application/pdf"></iframe>'
-                )
-                st.markdown(pdf_display, unsafe_allow_html=True)
+                pdf_html = f"""
+                <iframe src="data:application/pdf;base64,{base64_pdf}" 
+                        width="100%" height="600px" type="application/pdf">
+                </iframe>
+                """
+                components.html(pdf_html, height=600)
 
             with open(pdf_path, "rb") as f:
                 st.download_button("⬇️ Download PDF", f, file_name="parsed_resume.pdf")
