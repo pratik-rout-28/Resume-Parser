@@ -175,13 +175,9 @@ if uploaded_file:
             st.subheader("📄 Resume Preview")
 
             # PDF Display using base64 + HTML embed
-            with open(pdf_path, "rb") as f:
-                base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-
-            pdf_html = f"""
-                <embed src="data:application/pdf;base64,{base64_pdf}" type="application/pdf"
-                       width="100%" height="600px"/>
-            """
-            components.html(pdf_html, height=600)
-
-            st.download_button("⬇️ Download PDF", data=open(pdf_path, "rb"), file_name="parsed_resume.pdf", mime="application/pdf")
+            with open(pdf_path, "rb") as pdf_file:
+                base64_pdf = base64.b64encode(pdf_file.read()).decode("utf-8")
+                pdf_display = f"""
+                    <embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600px" type="application/pdf">
+                """
+                components.html(pdf_display, height=600, scrolling=True)
