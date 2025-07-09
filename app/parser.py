@@ -1,7 +1,6 @@
 import re
-import spacy
 from app.utils import SKILL_KEYWORDS, EDUCATION_KEYWORDS
-
+import spacy
 nlp = spacy.load("en_core_web_sm")
 
 # ---------------- Name Extraction ----------------
