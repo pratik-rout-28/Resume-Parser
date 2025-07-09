@@ -1,4 +1,5 @@
 streamlit
+streamlit-components
 pdfplumber
 spacy==3.8.7
 reportlab
