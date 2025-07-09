@@ -42,15 +42,9 @@ st.markdown("""
         margin-right:12px;
     }
     @media (max-width: 768px) {
-        .main-title {
-            font-size: 2rem;
-        }
-        .subtext {
-            font-size: 0.95rem;
-        }
-        .block-container {
-            padding: 1rem;
-        }
+        .main-title { font-size: 2rem; }
+        .subtext { font-size: 0.95rem; }
+        .block-container { padding: 1rem; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -179,14 +173,15 @@ if uploaded_file:
 
         with right_col:
             st.subheader("📄 Resume Preview")
-            with open(pdf_path, "rb") as pdf_file:
-                base64_pdf = base64.b64encode(pdf_file.read()).decode("utf-8")
-                pdf_html = f"""
-                <iframe src="data:application/pdf;base64,{base64_pdf}" 
-                        width="100%" height="600px" type="application/pdf">
-                </iframe>
-                """
-                components.html(pdf_html, height=600)
 
+            # PDF Display using base64 + HTML embed
             with open(pdf_path, "rb") as f:
-                st.download_button("⬇️ Download PDF", f, file_name="parsed_resume.pdf")
+                base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+
+            pdf_html = f"""
+                <embed src="data:application/pdf;base64,{base64_pdf}" type="application/pdf"
+                       width="100%" height="600px"/>
+            """
+            components.html(pdf_html, height=600)
+
+            st.download_button("⬇️ Download PDF", data=open(pdf_path, "rb"), file_name="parsed_resume.pdf", mime="application/pdf")
