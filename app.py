@@ -16,21 +16,21 @@ st.set_page_config(page_title="AI-Powered Resume Parser", layout="wide")
 st.markdown("""
     <style>
     .stApp {
-        background-color: #0e0e11; color: #FEFEFA;
+        background-color:#0e0e11; color:#FEFEFA;
     }
     .block-container {
-        padding: 2rem;
+        padding:2rem;
     }
     .main-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #C1D7F0;
-        margin-bottom: 0.2rem;
+        font-size:2.5rem;
+        font-weight:700;
+        color:#C1D7F0;
+        margin-bottom:0.2rem;
     }
     .subtext {
-        font-size: 1rem;
-        color: #FEFEFA;
-        margin-bottom: 2rem;
+        font-size:1rem;
+        color:#FEFEFA;
+        margin-bottom:2rem;
     }
     .download-button-container {
         display: flex;
@@ -38,19 +38,19 @@ st.markdown("""
         margin-top: 2rem;
     }
     .stDownloadButton > button {
-        border-radius: 6px;
-        padding: 10px 20px;
-        background-color: #1976D2;
-        color: white;
-        font-weight: 600;
-        font-size: 1rem;
+        border-radius:6px;
+        padding:10px 20px;
+        background-color:#1976D2;
+        color:white;
+        font-weight:600;
+        font-size:1rem;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------- Title ----------
 st.markdown('<div class="main-title">🤖 AI-Powered Resume Parser</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtext">A simple and smart tool that reads resumes and instantly picks out important details like skills and experience.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtext">A smart tool that analyzes resumes and provides ATS insights and skill breakdown.</div>', unsafe_allow_html=True)
 
 # ---------- File Upload ----------
 uploaded_file = st.file_uploader("📤 Upload your resume (PDF only)", type=["pdf"])
@@ -106,7 +106,7 @@ if uploaded_file:
 
         st.success("✅ Resume parsed and converted successfully!")
 
-        # ---------- ATS Report + Pie Chart ----------
+        # ---------- Resume Report + Skill Chart ----------
         col1, col2 = st.columns(2)
 
         with col1:
@@ -159,13 +159,27 @@ if uploaded_file:
                     "Count": [len(v) for v in category_map.values()],
                     "Skills": [", ".join(v) for v in category_map.values()]
                 })
-                fig = px.pie(df,
-                             names="Category",
-                             values="Count",
-                             hole=0.3,
-                             custom_data=["Skills"],
-                             title="Skill Distribution by Category")
-                fig.update_traces(hovertemplate="<b>%{label}</b><br>%{customdata[0]}")
+
+                fig = px.pie(
+                    df,
+                    names="Category",
+                    values="Count",
+                    custom_data=["Skills"],
+                    title="Skill Distribution by Category",
+                    hole=0.3
+                )
+
+                fig.update_layout(
+                    legend=dict(orientation="v", x=1.05, y=0.5),
+                    margin=dict(t=40, l=0, r=0, b=0),
+                    height=400
+                )
+
+                fig.update_traces(
+                    textinfo="percent+label",
+                    hovertemplate="<b>%{label}</b><br>Skills: %{customdata[0]}"
+                )
+
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.info("No skills found to display.")
@@ -173,5 +187,5 @@ if uploaded_file:
         # ---------- PDF Download Button ----------
         st.markdown('<div class="download-button-container">', unsafe_allow_html=True)
         with open(pdf_path, "rb") as f:
-            st.download_button("⬇️ Download Parsed PDF", data=f, file_name="parsed_resume.pdf", mime="application/pdf")
+            st.download_button("⬇️ Download Parsed Resume (PDF)", data=f, file_name="parsed_resume.pdf", mime="application/pdf")
         st.markdown('</div>', unsafe_allow_html=True)
