@@ -4,7 +4,6 @@ import base64
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import streamlit.components.v1 as components
 from app.extractor import extract_text_from_pdf
 from app.parser import parse_resume, score_resume
 from app.exporter import export_resume
@@ -17,34 +16,34 @@ st.set_page_config(page_title="AI-Powered Resume Parser", layout="wide")
 st.markdown("""
     <style>
     .stApp {
-        background-color:#0e0e11; color:#FEFEFA;
+        background-color: #0e0e11; color: #FEFEFA;
     }
     .block-container {
-        padding:2rem;
+        padding: 2rem;
     }
     .main-title {
-        font-size:2.5rem;
-        font-weight:700;
-        color:#C1D7F0;
-        margin-bottom:0.2rem;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #C1D7F0;
+        margin-bottom: 0.2rem;
     }
     .subtext {
-        font-size:1rem;
-        color:#FEFEFA;
-        margin-bottom:2rem;
+        font-size: 1rem;
+        color: #FEFEFA;
+        margin-bottom: 2rem;
+    }
+    .download-button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
     }
     .stDownloadButton > button {
-        border-radius:6px;
-        padding:8px 16px;
-        background-color:#1976D2;
-        color:white;
-        font-weight:600;
-        margin-right:12px;
-    }
-    @media (max-width: 768px) {
-        .main-title { font-size: 2rem; }
-        .subtext { font-size: 0.95rem; }
-        .block-container { padding: 1rem; }
+        border-radius: 6px;
+        padding: 10px 20px;
+        background-color: #1976D2;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -107,11 +106,11 @@ if uploaded_file:
 
         st.success("✅ Resume parsed and converted successfully!")
 
-        # ---------- Resume Summary + PDF ----------
-        left_col, right_col = st.columns([1, 1])
+        # ---------- ATS Report + Pie Chart ----------
+        col1, col2 = st.columns(2)
 
-        with left_col:
-            st.subheader("📋 ATS Report")
+        with col1:
+            st.subheader("📋 ATS Compatibility Report")
             st.markdown(f"### ✅ Your Score: **{score_breakdown['Total Score']} / 100**")
 
             suggestions = {
@@ -143,8 +142,8 @@ if uploaded_file:
                     with st.expander("💡 Suggestion", expanded=False):
                         st.markdown(suggestions[section])
 
-            # ---------- Pie Chart for Skill Categories ----------
-            st.markdown("### 📊 Skill Category Distribution")
+        with col2:
+            st.subheader("📊 Skill Category Distribution")
 
             category_map = {cat: [] for cat in SKILL_CATEGORIES}
             for skill in parsed.get("skills", []):
@@ -171,17 +170,8 @@ if uploaded_file:
             else:
                 st.info("No skills found to display.")
 
-        with right_col:
-            st.subheader("📄 Resume Preview")
-
-            # PDF Display using base64 + HTML embed
-            with open(pdf_path, "rb") as f:
-                base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-
-            pdf_html = f"""
-                <embed src="data:application/pdf;base64,{base64_pdf}" type="application/pdf"
-                       width="100%" height="600px"/>
-            """
-            components.html(pdf_html, height=600)
-
-            st.download_button("⬇️ Download PDF", data=open(pdf_path, "rb"), file_name="parsed_resume.pdf", mime="application/pdf")
+        # ---------- PDF Download Button ----------
+        st.markdown('<div class="download-button-container">', unsafe_allow_html=True)
+        with open(pdf_path, "rb") as f:
+            st.download_button("⬇️ Download Parsed PDF", data=f, file_name="parsed_resume.pdf", mime="application/pdf")
+        st.markdown('</div>', unsafe_allow_html=True)
