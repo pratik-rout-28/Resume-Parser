@@ -10,127 +10,115 @@ from app.exporter import export_resume
 from app.utils import SKILL_CATEGORIES
 
 # ---------- Page Config ----------
-st.set_page_config(page_title="AI-Powered Resume Parser", layout="wide")
+st.set_page_config(page_title="Smart Resume Checker", layout="wide")
 
-# ---------- Custom CSS ----------
+# ---------- Custom CSS: Google Fonts + Animations ----------
 st.markdown("""
-    <style>
-    .stApp {
-        background-color:#0e0e11; color:#FEFEFA;
-    }
-    .block-container {
-        padding:2rem;
-    }
-    .main-title {
-        font-size:2.5rem;
-        font-weight:700;
-        color:#C1D7F0;
-        margin-bottom:0.2rem;
-    }
-    .subtext {
-        font-size:1rem;
-        color:#FEFEFA;
-        margin-bottom:2rem;
-    }
-    .download-button-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 2rem;
-    }
-    .stDownloadButton > button {
-        border-radius:6px;
-        padding:10px 20px;
-        background-color:#1976D2;
-        color:white;
-        font-weight:600;
-        font-size:1rem;
-    }
-    </style>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body, .stApp {
+    font-family: 'Poppins', sans-serif;
+    background-color:#0e0e11;
+    color:#FEFEFA;
+}
+.block-container { padding:2rem; }
+.main-title {
+    font-size:2.5rem;
+    font-weight:700;
+    color:#C1D7F0;
+    margin-bottom:0.2rem;
+}
+.subtext {
+    font-size:1rem;
+    color:#FEFEFA;
+    margin-bottom:2rem;
+}
+.stDownloadButton > button {
+    border-radius:6px;
+    padding:8px 16px;
+    background-color:#1976D2;
+    color:white;
+    font-weight:600;
+    margin-top: 1rem;
+}
+.fade-in {
+    animation: fadeIn 1.5s ease-in;
+}
+.score-highlight {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #90CAF9;
+    margin-top: 0.5rem;
+}
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+</style>
 """, unsafe_allow_html=True)
 
 # ---------- Title ----------
-st.markdown('<div class="main-title">🤖 AI-Powered Resume Parser</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtext">A smart tool that analyzes resumes and provides ATS insights and skill breakdown.</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-title">📝 Smart Resume Checker</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtext">Get instant feedback on your resume with suggestions and tips to make it better.</div>', unsafe_allow_html=True)
 
 # ---------- File Upload ----------
-uploaded_file = st.file_uploader("📤 Upload your resume (PDF only)", type=["pdf"])
+uploaded_file = st.file_uploader("📄 Upload your resume (PDF only)", type=["pdf"])
 
 if uploaded_file:
     file_size_mb = len(uploaded_file.getvalue()) / (1024 * 1024)
     if file_size_mb > 2:
-        st.error("❌ File too large. Please upload a PDF smaller than 2 MB.")
+        st.error("❌ Your file is too big. Please upload a PDF smaller than 2 MB.")
     else:
-        steps = ["📤 Upload", "🧠 Extract", "🔍 Parse", "📄 Export", "✅ Done"]
-        badge_placeholder = st.empty()
+        progress = st.progress(0, text="⏳ Analyzing your resume...")
 
-        def render_badges(active_idx: int):
-            html = "<div style='font-size:1rem; margin-bottom:1rem; display:flex; gap:1rem; flex-wrap:wrap;'>"
-            for i, label in enumerate(steps):
-                bg = "#1976D2" if i <= active_idx else "#424242"
-                html += f"<span style='background:{bg}; color:white; padding:6px 12px; border-radius:20px;'>{label}</span>"
-            html += "</div>"
-            badge_placeholder.markdown(html, unsafe_allow_html=True)
-
-        render_badges(0)
-
-        progress = st.progress(0, text="📄 Processing resume...")
-
-        # Step 1 – Save file
+        # Step 1 – Save
         os.makedirs("resumes", exist_ok=True)
         resume_path = os.path.join("resumes", uploaded_file.name)
         with open(resume_path, "wb") as f:
             f.write(uploaded_file.read())
-        progress.progress(25, text="📥 File saved successfully.")
-        render_badges(1)
+        progress.progress(25, text="📥 File uploaded.")
 
-        # Step 2 – Extract text
+        # Step 2 – Extract
         raw_text = extract_text_from_pdf(resume_path)
-        progress.progress(50, text="🧠 Extracting text from PDF...")
-        render_badges(2)
+        progress.progress(50, text="🔍 Reading your resume...")
 
-        # Step 3 – Parse resume
+        # Step 3 – Parse
         parsed = parse_resume(raw_text)
         score_breakdown = score_resume(parsed)
-        progress.progress(75, text="🔍 Parsing resume content...")
-        render_badges(3)
+        progress.progress(75, text="🧠 Understanding your details...")
 
-        # Step 4 – Export files
+        # Step 4 – Export
         os.makedirs("output", exist_ok=True)
         json_path = "output/parsed_resume.json"
         pdf_path = "output/parsed_resume.pdf"
         with open(json_path, "w", encoding="utf-8") as f:
             json.dump(parsed, f, indent=4)
         export_resume(json_path, pdf_path)
-        progress.progress(100, text="✅ Completed!")
-        render_badges(4)
+        progress.progress(100, text="✅ All done!")
 
-        st.success("✅ Resume parsed and converted successfully!")
+        st.success("✅ Your resume is ready!")
 
-        # ---------- Resume Report + Skill Chart ----------
-        col1, col2 = st.columns(2)
+        # ---------- Report Columns ----------
+        left_col, right_col = st.columns([1, 1])
 
-        with col1:
-            st.subheader("📋 ATS Compatibility Report")
-            st.markdown(f"### ✅ Your Score: **{score_breakdown['Total Score']} / 100**")
+        with left_col:
+            st.subheader("📊 Resume Score & Insights")
+            st.markdown(f"<span class='score-highlight fade-in'>⭐ Overall Score: {score_breakdown['Total Score']} / 100</span>", unsafe_allow_html=True)
 
+            # Friendly tips
             suggestions = {
-                "Contact Info": "Add both email and phone number to complete your contact details.",
-                "Social Links": "Include both LinkedIn and GitHub profiles to increase your credibility.",
-                "Skills": "List at least 5 relevant technical skills to showcase your capabilities.",
-                "Projects": "Mention at least 2 projects with tech stacks and outcomes.",
-                "Education": "Make sure your education history includes both school and college.",
-                "Work Experience": "Add any work, internship, or volunteer experience for higher impact.",
-                "Summary": "Include a short summary that highlights your goals and strengths."
+                "Contact Info": "Add both email and phone number so employers can reach you.",
+                "Social Links": "Include LinkedIn and GitHub to show your online presence.",
+                "Skills": "List at least 5 relevant technical skills that reflect your strengths.",
+                "Projects": "Add 2+ projects with tools you used and what they achieved.",
+                "Education": "Mention both school and college education clearly.",
+                "Work Experience": "Mention internships, jobs, or freelance work if any.",
+                "Summary": "Write a short intro about who you are and your goals."
             }
 
             max_points = {
-                "Contact Info": 20,
-                "Social Links": 10,
-                "Skills": 15,
-                "Projects": 15,
-                "Education": 10,
-                "Work Experience": 15,
-                "Summary": 15
+                "Contact Info": 20, "Social Links": 10, "Skills": 15, "Projects": 15,
+                "Education": 10, "Work Experience": 15, "Summary": 15
             }
 
             for section, pts in score_breakdown.items():
@@ -139,18 +127,45 @@ if uploaded_file:
                 emoji = "✅" if pts == max_points[section] else "⚠️" if pts > 0 else "❌"
                 st.markdown(f"**{emoji} {section}**")
                 if pts < max_points[section]:
-                    with st.expander("💡 Suggestion", expanded=False):
+                    with st.expander("📌 How to improve", expanded=False):
                         st.markdown(suggestions[section])
 
-        with col2:
-            st.subheader("📊 Skill Category Distribution")
+            # 🎯 Job Role Tips
+            role_suggestions = {
+                "frontend": "Consider adding React, HTML, or CSS projects to show UI experience.",
+                "backend": "Include backend tech like Node.js, Express, or MongoDB.",
+                "data": "Highlight data analysis tools like Pandas, SQL, or Excel.",
+                "ai": "Mention any ML models or AI projects using TensorFlow or NLP."
+            }
 
+            role_detected = None
+            for role in role_suggestions:
+                if role in raw_text.lower():
+                    role_detected = role
+                    break
+
+            if role_detected:
+                st.markdown("### 🎯 Tips for Your Target Role")
+                st.info(role_suggestions[role_detected])
+
+            # 🚀 Career Paths
+            st.markdown("### 🚀 Career Paths That Fit You")
+            skills = parsed.get("skills", [])
+            roles = []
+            if any(s in skills for s in ["react.js", "html5", "css3", "javascript"]): roles.append("Frontend Developer")
+            if any(s in skills for s in ["node.js", "express.js", "mongodb"]): roles.append("Backend Developer")
+            if any(s in skills for s in ["python", "sql", "pandas", "numpy"]): roles.append("Data Analyst")
+            if any(s in skills for s in ["tensorflow", "keras", "scikit-learn"]): roles.append("AI/ML Engineer")
+            if not roles: roles.append("General Software Developer")
+            st.success(f"Based on your skills, you might enjoy being a: **{', '.join(roles)}**.")
+
+        with right_col:
+            st.subheader("🧠 Your Skills Overview")
             category_map = {cat: [] for cat in SKILL_CATEGORIES}
             for skill in parsed.get("skills", []):
                 for cat, kw_list in SKILL_CATEGORIES.items():
                     if skill.lower() in kw_list:
                         category_map[cat].append(skill)
-
             category_map = {k: v for k, v in category_map.items() if v}
 
             if category_map:
@@ -159,33 +174,17 @@ if uploaded_file:
                     "Count": [len(v) for v in category_map.values()],
                     "Skills": [", ".join(v) for v in category_map.values()]
                 })
-
-                fig = px.pie(
-                    df,
-                    names="Category",
-                    values="Count",
-                    custom_data=["Skills"],
-                    title="Skill Distribution by Category",
-                    hole=0.3
-                )
-
-                fig.update_layout(
-                    legend=dict(orientation="v", x=1.05, y=0.5),
-                    margin=dict(t=40, l=0, r=0, b=0),
-                    height=400
-                )
-
-                fig.update_traces(
-                    textinfo="percent+label",
-                    hovertemplate="<b>%{label}</b><br>Skills: %{customdata[0]}"
-                )
-
+                fig = px.pie(df,
+                             names="Category",
+                             values="Count",
+                             hole=0.3,
+                             custom_data=["Skills"],
+                             title="Tech Skills Grouped by Type")
+                fig.update_traces(hovertemplate="<b>%{label}</b><br>%{customdata[0]}")
                 st.plotly_chart(fig, use_container_width=True)
             else:
-                st.info("No skills found to display.")
+                st.info("No tech skills found to display.")
 
-        # ---------- PDF Download Button ----------
-        st.markdown('<div class="download-button-container">', unsafe_allow_html=True)
-        with open(pdf_path, "rb") as f:
-            st.download_button("⬇️ Download Parsed Resume (PDF)", data=f, file_name="parsed_resume.pdf", mime="application/pdf")
-        st.markdown('</div>', unsafe_allow_html=True)
+            # 💾 Download Button
+            with open(pdf_path, "rb") as f:
+                st.download_button("💾 Save Your Resume Report", f, file_name="parsed_resume.pdf", mime="application/pdf")
